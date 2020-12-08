@@ -1,0 +1,236 @@
+{% extends "base/base.html" %}
+{% load staticfiles %}
+
+{% block staticfile %}
+<link rel="stylesheet" href="{% static 'css/design.css' %}">
+<script type="text/javascript" src="{% static 'js/design.js' %}"></script>
+<script type="text/javascript">
+lang_code = {{ userlang.lang_code }};
+    const lang = {
+        ko:{
+            warpplan:"경 편 설 계 도", yarnnumber:"사번", yarnmaker:"원사메이커", yarntype:"사종", color:"색상", uniquecode:"고유코드",
+            ratio:"비율(%)", transmission:"송출(mm/rack)", boncount:"본수", beamcount:"빔수", totalboncount:"총 본수", fabric:"원단",
+            waledensity:"웨일밀도", coursedensity:"코스밀도", width:"폭", weightwidth:"중량/폭", arrangement:"배열", remark:"비고",
+            weavechart:"조직도", magnification:"배율 : ", processingpaper:"가공지", greige:"생지"
+
+        },
+        en:{
+            warpplan:"Warp plan chart", yarnnumber:"Yarn number", yarnmaker:"Yarn maker", yarntype:"Yarn type", color:"Color",
+            uniquecode:"unique code", ratio:"ratio(%)", transmission:"transmission(mm/rack)", boncount:"bon count", beamcount:"beam count",
+            totalboncount:"total bon count", fabric:"Fabric", waledensity:"Wake density", coursedensity:"Course density", width:"Width",
+            weightwidth:"Weight/Width", arrangement:"Arrangement", remark:"Remark", weavechart:"Weave chart", magnification:"Magnification : ",
+            processingpaper:"processing paper", greige:"Greige"
+        }
+    };
+    // 언어별 렌더링
+    function render(locale) {
+        const $lang = document.querySelectorAll("[data-lang]");
+        $lang.forEach(el => {
+            const code = el.dataset.lang;
+            el.textContent = lang[locale][code]
+        })
+    };
+    if(lang_code==0){
+        render("ko");
+    };
+    if(lang_code==1){
+        render("en");
+    };
+</script>
+{% endblock staticfile %}
+
+{% block content %}
+            <div id="orderContentWrap" class="fix">
+                <div id="showDesingData">
+                    <div id="designData">
+                        <div id="orderWrap">
+                            <h2 data-lang="warpplan">[warpplan]</h2>
+                            <div id="designName">Name : {{ object.CAD_Design_Data_name }}</div>
+                            <div id="topSecond">
+                                <div id="designCode">CODE : {{ object.CAD_Design_Data_code }}</div>
+                                <div id="date">DATE : {{ object.CAD_Design_Data_create_date|date:"Y-m-d" }}</div>
+                            </div>
+                            <div id="yarnDiv">
+                                <div></div>
+                                <table id="yarnTable">
+                                <colgroup>
+                                    <col width="5%">
+                                    <col width="5%">
+                                    <col width="10%">
+                                    <col width="13%">
+                                    <col width="7%">
+                                    <col width="10%">
+                                    <col width="10%">
+                                    <col width="15%">
+                                    <col width="10%">
+                                    <col width="5%">
+                                    <col width="10%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>BAR</th>
+                                        <th data-lang="yarnnumber">[yarnnumber]</th>
+                                        <th data-lang="yarnmaker">[yarnmaker]</th>
+                                        <th data-lang="yarntype">[yarntype]</th>
+                                        <th data-lang="color">[color]</th>
+                                        <th data-lang="uniquecode">[uniquecode]</th>
+                                        <th data-lang="ratio">[ratio]</th>
+                                        <th data-lang="transmission">[transmission]</th>
+                                        <th data-lang="boncount">[boncount]</th>
+                                        <th data-lang="beamcount">[beamcount]</th>
+                                        <th data-lang="totalboncount">[totalboncount]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for layer in object.fsty_cad_layer_set.all %}
+                                    <tr>
+                                        <td>{{ layer.CAD_Layer_name }}</td>
+                                        <td>{{ layer.fsty_cad_yarn.CAD_Yarn_idx }}</td>
+                                        <td>{{ layer.fsty_cad_yarn.CAD_Yarn_maker }}</td>
+                                        <td>{{ layer.fsty_cad_yarn.CAD_Yarn_spec }}</td>
+                                        <td><div class="cadyarn_color" style="background-color:rgb({{ layer.fsty_cad_yarn.CAD_Yarn_rgb_color }}); width:80%; height:15px; border: 1px solid black;"></div></td>
+                                        <td>{{ layer.fsty_cad_yarn.CAD_Yarn_code }}</td>
+                                        <td>{{ layer.CAD_Layer_ratio }}</td>
+                                        <td>{{ layer.CAD_Layer_mm_rack }}</td>
+                                        <td>{{ layer.CAD_Layer_use }}</td>
+                                        <td>{{ layer.CAD_Layer_beam }}</td>
+                                        <td>{{ layer.CAD_Layer_total }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                            <div id="fabricDiv">
+                                <div></div>
+                                <table id="fabricTable">
+                                <colgroup>
+                                    <col width="20%">
+                                    <col width="20%">
+                                    <col width="20%">
+                                    <col width="20%">
+                                    <col width="20%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th data-lang="fabric">[fabric]</th>
+                                        <th data-lang="waledensity">[waledensity]</th>
+                                        <th data-lang="coursedensity">[coursedensity]</th>
+                                        <th data-lang="width">[width]</th>
+                                        <th data-lang="weightwidth">[weightwidth]</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for fabric in object.fsty_cad_production.fsty_cad_fabric_set.all %}
+                                    <tr>
+                                        {% if fabric.CAD_Fabric_type == 'R' %}<td data-lang="greige">[greige]</td>{% else %}<td data-lang="processingpaper">[processingpaper]</td>{% endif %}
+                                        <td>{{ fabric.CAD_Fabric_wpi }} w/inch</td>
+                                        <td>{{ fabric.CAD_Fabric_cpi }} c/cm</td>
+                                        <td>{{ fabric.CAD_Fabric_width }} inch</td>
+                                        <td>{{ fabric.CAD_Fabric_weight_per_width }} g/y</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                            <div id="colorDiv">
+                                <div></div>
+                                <table id="colorTable">
+                                <colgroup>
+                                    <col width="10%">
+                                    <col width="30%">
+                                    <col width="30%">
+                                    <col width="30%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>BAR</th>
+                                        <th>RGB Color</th>
+                                        <th>LAB Color</th>
+                                        <th>Pantone Color</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for layer in object.fsty_cad_layer_set.all %}
+                                    <tr>
+                                        <td>{{ layer.CAD_Layer_name }}</td>
+                                        <td>{{ layer.fsty_cad_yarn.CAD_Yarn_rgb_color }}</td>
+                                        <td>{{ layer.fsty_cad_yarn.CAD_Yarn_lab_color }}</td>
+                                        <td>{{ layer.fsty_cad_yarn.CAD_Yarn_pantone_color }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                            <div id="layerDiv">
+                                <div></div>
+                                <table id="layerTable">
+                                <colgroup>
+                                    <col width="10%">
+                                    <col width="90%">
+                                </colgroup>
+                                <thead>
+                                    <tr>
+                                        <th>BAR</th>
+                                        <th></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for layer in object.fsty_cad_layer_set.all %}
+                                    <tr>
+                                        <td>{{ layer.CAD_Layer_name }}</td>
+                                        <td>{{ layer.fsty_cad_chain_link.CAD_Chain_Link_course }}</td>
+                                    </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                            <div id="productionDiv">
+                                <div></div>
+                                <table id="productionTable">
+                                    <colgroup>
+                                        <col width="20%">
+                                        <col width="80%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th colspan="2">Production</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td data-lang="magnification">[magnification]</td>
+                                            <td></td>
+                                        </tr>
+                                        <tr>
+                                            <td data-lang="remark">[remark]</td>
+                                            <td></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <table id="imgTable">
+                                    <colgroup>
+                                        <col width="50%">
+                                        <col width="50%">
+                                    </colgroup>
+                                    <thead>
+                                        <tr>
+                                            <th data-lang="weavechart">[weavechart]</th>
+                                            <th data-lang="magnification">[magnification]</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td><div style="background-image: url('/media/{{ object.CAD_Design_Data_pattern_image }}')"></div></td>
+                                            <td><div style="background-image: url('/media/{{ object.CAD_Design_Data_simulation_image }}')"></div></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </body>
+</html>
+{% endblock content %}

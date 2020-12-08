@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+{% load staticfiles %}
+<html lang="en">
+<head>
+    <title>{{ title }}</title>
+    <meta name="viewport" content="width=1920">
+    <script type='text/javascript' src="{% static 'js/jquery-1.12.3.min.js' %}"></script>
+    <script type='text/javascript' src="{% static 'js/chart.js' %}"></script>
+    <script type='text/javascript' src="{% static 'js/circleful.js' %}"></script>
+    <script type='text/javascript' src="{% static 'js/common.js' %}"></script>
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/chart.css' %}">
+    <link rel="stylesheet" href="{% static 'css/circleful.css' %}">
+    <link rel="stylesheet" href="{% static 'css/index.css' %}">
+
+</head>
+<body>
+<div id="mask" onclick="closeMask()"></div>
+<div id="root">
+    <div id="head">
+        <h1>TexTM</h1>
+        <div class="headRight">
+            <span>{{ user.username }}</span>
+            {% if user.propic  %}
+                <span class="userPropic"><img src="{{ user.propic.url }}" height="25px"></span>
+            {% else %}
+                <span class="userPropic"><img src="{% static 'image/ningen.png' %}" height="25px"></span>
+            {% endif %}
+            <span onclick="javascript:window.location='/logout'">
+                    <img src="{% static 'image/logout.png' %}" height="25px">
+                </span>
+            <span onclick="sendUserPOP()">WDMS</span>
+
+        </div>
+    </div>
+    <div class="ahffk" onclick="alramout()">
+        <div id="mainWrap" class="fix">
+            <div id="gnb">
+                <ul>
+                    <li><a href="/dashboard"><img src="{% static 'image/dashboard.png' %}" height="20px">Dashboard</a></li>
+                    <li><a href="/order"><img src="{% static 'image/order.png' %}" height="20px">Order</a></li>
+                    {% if user.level >= 2 %}
+                        <li><a href="/schedule"><img src="{% static 'image/design.png' %}" height="20px">Schedule</a></li>
+                    {% endif %}
+                    <li><a href="/production"><img src="{% static 'image/production.png' %}" height="20px">Production</a></li>
+                    <li><a href="/machine"><img src="{% static 'image/production.png' %}" height="20px">Machine</a></li>
+                    {% if user.level >= 2 %}
+                        <li><a href="/design_data"><img src="{% static 'image/design.png' %}" height="20px">Design</a></li>
+                        <li><a href="/material"><img src="{% static 'image/design.png' %}" height="20px">Materials</a></li>
+                    {% endif %}
+                    <li><a href="/setting"><img src="{% static 'image/setting.png' %}" height="20px">Setting</a></li>
+                </ul>
+            </div>
+        </div>
+        <script>
+            $(document).ready(function() {
+                var selectMenu = $('#gnb').find('li');
+                if('{{ title }}'){
+                    for(var i = 0; i<selectMenu.length; i++){
+                        if(selectMenu.eq(i).text() == '{{ title }}'){
+                            $(selectMenu.eq(i)).addClass('gnbSelect');
+                        }
+                    }
+                }else{
+                    $(selectMenu.eq(0)).addClass('gnbSelect');
+                    document.title = "Dashboard";
+                }
+            })
+            function sendUserPOP() {
+                $.ajax({
+                    url: 'http://tnswebserver.iptime.org:24685/Home/GetData',
+                    //url: 'http://tnswebserver.iptime.org:24685/post_Test.aspx',
+                    type: 'POST',
+                    cache: false,
+                    data: {
+                        username : '{{ user.username }}',
+                        company_code : {{ user.company_code.code }},
+                        name : '{{ user.name }}',
+                        password:'{{ user.password }}',
+                        email : '{{ user.email }}',
+                        create_date : '{{ user.create_date|date:"Y-m-d" }}',
+                        theme_code : '{{ user.theme_code }}',
+                        lang_code : '{{ user.lang_code }}',
+                    },
+                    dataType: 'json',
+                    async: false,
+                    success: function (response) {
+                        //console.log(response)
+                        var popMain = response.split('"');
+                        //console.log(popMain[1]);
+                        location.href=popMain[1];
+                    },
+                    error: function(jqXHR, exception) {
+                        if (jqXHR.status == 0) {
+                            alert('Not connect.\n Verify Network.');
+                        }
+                        else if (jqXHR.status == 400) {
+                            alert('Server understood the request, but request content was invalid. [400]');
+                        }
+                        else if (jqXHR.status == 401) {
+                            alert('Unauthorized access. [401]');
+                        }
+                        else if (jqXHR.status == 403) {
+                            alert('Forbidden resource can not be accessed. [403]');
+                        }
+                        else if (jqXHR.status == 404) {
+                            alert('Requested page not found. [404]');
+                        }
+                        else if (jqXHR.status == 500) {
+                            alert('Internal server error. [500]');
+                        }
+                        else if (jqXHR.status == 503) {
+                            alert('Service unavailable. [503]');
+                        }
+                        else if (exception === 'parsererror') {
+                            alert('Requested JSON parse failed. [Failed]');
+                        }
+                        else if (exception === 'timeout') {
+                            alert('Time out error. [Timeout]');
+                        }
+                        else if (exception === 'abort') {
+                            alert('Ajax request aborted. [Aborted]');
+                        }
+                        else {
+                            alert('Uncaught Error.n' + jqXHR.responseText);
+                        }
+                    }
+                });
+            }
+        </script>
+        {% block content %}
+        {% endblock %}
+    </div>
+</div>
+{% block staticfile %}
+{% endblock %}
+</body>
+</html>
