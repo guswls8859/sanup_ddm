@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/texddm2019.iml" filepath="$PROJECT_DIR$/.idea/texddm2019.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/sanup.iml" filepath="$PROJECT_DIR$/.idea/sanup.iml" />
     </modules>
   </component>
 </project>
